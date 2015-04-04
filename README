@@ -41,5 +41,11 @@ diff -ru tmp-dhd2modular/droid-*-repo/$DEVICE
 
 ^ this will help you fish out any suspicious differences
 
+How to revert:
+If you want to revert to the pre-migration state, just do this:
+cd $ANDROID_ROOT
+mv rpm rpm-modular
+mv rpm-monolithic rpm
+
 Let's DIT \o/
 
