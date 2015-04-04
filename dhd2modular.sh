@@ -79,7 +79,7 @@ function migrate() {
         echo "\$ANDROID_ROOT/hybris/droid-config-$DEVICE/droid-config-$DEVICE.spec"
         echo
         echo "$SPEC_EXTRAS"
-        SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | sed -e :a -e '$!N;s/\n/\\n/;ta')
+        SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | sed -e 's/\\/\\\\/g' | sed -e :a -e '$!N;s/\n/\\n/;ta')
         sed -i -e "/^%include rpm\/dhd\/droid-.*$/i# Entries copied from rpm-monolithic\/droid-hal-$DEVICE.spec\n$SPEC_EXTRAS\n" droid-hal-$DEVICE.spec
     fi
 
