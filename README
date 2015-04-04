@@ -27,9 +27,11 @@ hybris/dhd2modular/dhd2modular.sh migrate
 hybris/dhd2modular/dhd2modular.sh build
 
 TODO:
-* Pattern templates and for every porter to then update from:
-  * add droid-hal-version-$DEVICE
-  * remove corresponding droid-*config* packages that d-h-version Requires
+* Write a script rpm/dhd/helpers/amibehind.sh, which:
+  * performs cd rpm; dhd/helpers/add_new_device.sh; git diff - for user to see
+    what changed in patterns
+  * checks if newer submodules available upstream for rpm/, d-h-config, and
+    d-h-version packages
 
 UNTESTED: Build installation .zip and deploy to your device
 

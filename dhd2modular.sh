@@ -250,7 +250,7 @@ elif [[ 'build-modular' == $1* ]]; then
     set +x
     echo "-----------------------------------PAUSE!---------------------------------------"
     echo "At this point you should open a new terminal window and run through the" 
-    read '"Build HA Middleware Package" HADK chapter. When done, press Enter here to continue: '
+    read -p '"Build HA Middleware Package" HADK chapter. When done, press Enter here to continue: '
     set -x
     cd hybris/droid-hal-version-$DEVICE
     mb2 -t $VENDOR-$DEVICE-armv7hl \
