@@ -156,7 +156,7 @@ function migrate() {
 function build() {
     mb2 -t $VENDOR-$DEVICE-armv7hl -s rpm/droid-hal-$DEVICE.spec build
 
-    mv RPMS/*$DEVICE* $LOCAL_REPO
+    mv -v RPMS/*$DEVICE* $LOCAL_REPO
     createrepo $LOCAL_REPO
 
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
@@ -169,13 +169,13 @@ function build() {
         mb2 -t $VENDOR-$DEVICE-armv7hl \
           -s hybris/droid-hal-configs/rpm/droid-hal-configs.spec \
           build
-        mv RPMS/*.rpm $LOCAL_REPO
+        mv -v RPMS/*.rpm $LOCAL_REPO
     else
         cd hybris/droid-config-$DEVICE
         mb2 -t $VENDOR-$DEVICE-armv7hl \
           -s rpm/droid-config-$DEVICE.spec \
           build
-        mv RPMS/*.rpm $LOCAL_REPO
+        mv -v RPMS/*.rpm $LOCAL_REPO
         cd ../../
     fi
 
@@ -245,20 +245,20 @@ elif [[ 'build-modular' == $1* ]]; then
         exit 1
     fi
     LOCAL_REPO=$ANDROID_ROOT/droid-local-repo/$DEVICE
-
+    rm -rf $LOCAL_REPO/*
     build 'modular'
     set +x
     echo "-----------------------------------PAUSE!---------------------------------------"
     echo "At this point you should open a new terminal window and run through the" 
-    read -p '"Build HA Middleware Package" HADK chapter. When done, press Enter here to continue: '
+    read -p '"Build HA Middleware Packages" HADK chapter. When done, press Enter here to continue: '
     set -x
     cd hybris/droid-hal-version-$DEVICE
     mb2 -t $VENDOR-$DEVICE-armv7hl \
       -s rpm/droid-hal-version-$DEVICE.spec \
       build
-    mv RPMS/*.rpm $LOCAL_REPO
-    cd ../../
     set +x
+    mv -v RPMS/*.rpm $LOCAL_REPO
+    cd ../../
     echo "----------------------DONE! Now proceed on creating the rootfs------------------"
 fi
 
