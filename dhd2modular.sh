@@ -139,8 +139,11 @@ function migrate() {
     git add .
     git commit -m "[dhd2modular] Initial commit. Contributes to NEMO#788" 
 
-    echo "-----------------------------------DONE!----------------------------------------"
+    echo "-----------Checking how behind monolithic was with patterns...------"
     cd ..
+    rpm/dhd/helpers/amibehind.sh -p
+
+    echo "-----------------------------------DONE!----------------------------------------"
     echo "New repositories created under $ANDROID_ROOT:"
     echo "  rpm/"
     echo "  hybris/droid-configs"
