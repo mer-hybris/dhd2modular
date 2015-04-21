@@ -248,10 +248,33 @@ elif [[ 'build-modular' == $1* ]]; then
     rm -rf $LOCAL_REPO/*
     build 'modular'
     set +x
-    echo "-----------------------------------PAUSE!---------------------------------------"
-    echo "At this point you should open a new terminal window and run through the" 
-    read -p '"Build HA Middleware Packages" HADK chapter. When done, press Enter here to continue: '
+    echo "-------------------------------------------------------------------------------"
+    read -p 'About to perform "Build HA Middleware Packages" HADK chapter. Press Enter to continue.'
+    . $ANDROID_ROOT/hybris/dhd2modular/pkgbuild.inc
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu domain sales
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu dr sdk
+
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install zypper ref -f
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install zypper -n install droid-hal-$DEVICE-devel
+
+    rm -rf $MER_ROOT/devel/mer-hybris
+    mkdir -p $MER_ROOT/devel/mer-hybris
+    pushd $MER_ROOT/devel/mer-hybris
+
+    buildmw libhybris || die
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-build zypper -n rm mesa-llvmpipe
+    buildmw "https://github.com/nemomobile/mce-plugin-libhybris.git" || die
+    buildmw ngfd-plugin-droid-vibrator || die
+    buildmw "https://github.com/mer-hybris/pulseaudio-modules-droid.git" rpm/pulseaudio-modules-droid.spec || die
+    buildmw qt5-feedback-haptics-droid-vibrator || die
+    buildmw qt5-qpa-hwcomposer-plugin || die
+    buildmw "https://github.com/mer-hybris/qtscenegraph-adaptation.git" rpm/qtscenegraph-adaptation-droid.spec || die
+    buildmw "https://github.com/mer-packages/qtsensors.git" || die
+    buildmw "https://github.com/mer-packages/sensorfw.git" rpm/sensorfw-qt5-hybris.spec || die
+    read -p '"Build HA Middleware Packages built". Press Enter to continue.'
+    popd
     set -x
+
     cd hybris/droid-hal-version-$DEVICE
     mb2 -t $VENDOR-$DEVICE-armv7hl \
       -s rpm/droid-hal-version-$DEVICE.spec \
