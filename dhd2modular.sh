@@ -110,7 +110,7 @@ function migrate() {
         droid-configs-device/droid-config-@DEVICE@.spec.template >rpm/droid-config-$DEVICE.spec
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
     mkdir patterns/
-    cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE patterns/
+    cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE/* patterns/
     git add .
     git commit -m "[dhd2modular] Initial commit. Contributes to NEMO#788" 
 
