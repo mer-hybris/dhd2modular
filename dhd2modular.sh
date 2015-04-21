@@ -16,6 +16,9 @@ GITODO=sledges ## sed to mer-hybris once upstream
 GITBMOD=dhd2modular ## sed to modular ---"---
 GITCFGBMOD=$GITBMOD ## sed to master  ---"---
 
+# utilities
+. $ANDROID_ROOT/hybris/dhd2modular/util.sh
+
 function usage() {
     echo "Usage: $0 COMMAND [TYPE]"
     echo "Create modular droid-hal-device repository layout from the old monolithic repo."
@@ -76,27 +79,27 @@ function migrate() {
         echo "--------------------------------------------------------------------------------"
         echo "These additonal entries were copied from the old rpm-monolithic/droid-hal-$DEVICE.spec"
         echo "over to the new .spec under rpm/. You should move all Requires and Provides to"
-        echo "\$ANDROID_ROOT/hybris/droid-config-$DEVICE/droid-config-$DEVICE.spec"
+        echo "\$ANDROID_ROOT/hybris/droid-configs/droid-config-$DEVICE.spec"
         echo
         echo "$SPEC_EXTRAS"
         SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | sed -e 's/\\/\\\\/g' | sed -e :a -e '$!N;s/\n/\\n/;ta')
         sed -i -e "/^%include rpm\/dhd\/droid-.*$/i# Entries copied from rpm-monolithic\/droid-hal-$DEVICE.spec\n$SPEC_EXTRAS\n" droid-hal-$DEVICE.spec
     fi
 
-    echo "-----------Migrating: droid-config-$DEVICE---------------------------------"
+    echo "-----------Migrating: droid-configs---------------------------------"
     cd ../hybris
-    if [ -d droid-config-$DEVICE ]; then
-        read -p "hybris/droid-config-$DEVICE already exists. Nuke and continue? [Y/n]" REPLY
+    if [ -d droid-configs ]; then
+        read -p "hybris/droid-configs already exists. Nuke and continue? [Y/n]" REPLY
         REPLY=${REPLY:-y}
         if [[ ${REPLY:0:1} == [yY] ]]; then
-            rm -rf droid-config-$DEVICE
+            rm -rf droid-configs
         else
             echo "Bailing out!"
             exit 1
         fi
     fi
-    mkdir droid-config-$DEVICE
-    cd droid-config-$DEVICE
+    mkdir droid-configs
+    cd droid-configs
     git init
     git submodule add -b $GITCFGBMOD https://github.com/$GITODO/droid-hal-configs droid-configs-device
     mkdir rpm
@@ -107,7 +110,7 @@ function migrate() {
         droid-configs-device/droid-config-@DEVICE@.spec.template >rpm/droid-config-$DEVICE.spec
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
     mkdir patterns/
-    cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE patterns/
+    cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE/* patterns/
     git add .
     git commit -m "[dhd2modular] Initial commit. Contributes to NEMO#788" 
 
@@ -140,11 +143,11 @@ function migrate() {
     cd ..
     echo "New repositories created under $ANDROID_ROOT:"
     echo "  rpm/"
-    echo "  hybris/droid-configs-$DEVICE"
+    echo "  hybris/droid-configs"
     echo "  hybris/droid-hal-version-$DEVICE"
     echo "Your actions next:"
     if [[ -n $SPEC_EXTRAS ]]; then
-        echo "* Move around and commit all changes across rpm/ and hybris/droid-configs-$DEVICE"
+        echo "* Move around and commit all changes across rpm/ and hybris/droid-configs"
         echo "  as per instructions above"
     fi
     echo "* Push all those repos above to your GitHub and ask on #sailfishos-porters for new"
@@ -171,7 +174,7 @@ function build() {
           build
         mv -v RPMS/*.rpm $LOCAL_REPO
     else
-        cd hybris/droid-config-$DEVICE
+        cd hybris/droid-configs
         mb2 -t $VENDOR-$DEVICE-armv7hl \
           -s rpm/droid-config-$DEVICE.spec \
           build
@@ -250,7 +253,6 @@ elif [[ 'build-modular' == $1* ]]; then
     set +x
     echo "-------------------------------------------------------------------------------"
     read -p 'About to perform "Build HA Middleware Packages" HADK chapter. Press Enter to continue.'
-    . $ANDROID_ROOT/hybris/dhd2modular/pkgbuild.inc
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu domain sales
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu dr sdk
 
