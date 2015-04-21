@@ -16,6 +16,9 @@ GITODO=sledges ## sed to mer-hybris once upstream
 GITBMOD=dhd2modular ## sed to modular ---"---
 GITCFGBMOD=$GITBMOD ## sed to master  ---"---
 
+# utilities
+. $ANDROID_ROOT/hybris/dhd2modular/util.sh
+
 function usage() {
     echo "Usage: $0 COMMAND [TYPE]"
     echo "Create modular droid-hal-device repository layout from the old monolithic repo."
@@ -250,7 +253,6 @@ elif [[ 'build-modular' == $1* ]]; then
     set +x
     echo "-------------------------------------------------------------------------------"
     read -p 'About to perform "Build HA Middleware Packages" HADK chapter. Press Enter to continue.'
-    . $ANDROID_ROOT/hybris/dhd2modular/pkgbuild.inc
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu domain sales
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu dr sdk
 
