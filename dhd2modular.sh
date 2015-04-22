@@ -32,14 +32,6 @@ function usage() {
     echo "                                 doesn't boot."
 }
 
-function query_yes() {
-    read -p " [Y/n]" REPLY
-    REPLY=${REPLY:-y}
-    if [[ ${REPLY:0:1} == [yY] ]]; then
-        echo y
-    fi
-}
-
 function migrate() {
     if [ -d rpm/dhd ]; then
         echo "rpm/dhd/ exists - already migrated. To nuke all, perform:"
@@ -108,6 +100,12 @@ function migrate() {
         -e "s|@DEVICE_PRETTY@|$DEVICE_PRETTY|g" \
         -e "s|@VENDOR_PRETTY@|$VENDOR_PRETTY|g" \
         droid-configs-device/droid-config-@DEVICE@.spec.template >rpm/droid-config-$DEVICE.spec
+    read -r -p "Pixel Ration?[1.0, 1.5 or 2.0]" PXR
+    case $PXR in
+       1.0|1.5|2.0) minfo "Good to go!"; ;;
+       *) merror "Pixel ratio must be 1.0, 1.5 or 2.0"; die; ;;
+    esac 
+    sed -i -e "s/^%define pixel_ratio .*$/%define pixel_ratio $PXR/" rpm/droid-config-$DEVICE.spec 
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
     mkdir patterns/
     cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE/* patterns/
@@ -159,18 +157,7 @@ function migrate() {
     set +e
 }
 
-function build() {
-    mb2 -t $VENDOR-$DEVICE-armv7hl -s rpm/droid-hal-$DEVICE.spec build
-
-    mv -v RPMS/*$DEVICE* $LOCAL_REPO
-    createrepo $LOCAL_REPO
-
-    sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
-      ssu ar local-$DEVICE-hal-$1 file://$LOCAL_REPO
-
-    sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
-      zypper ref
-
+function buildconfigs() {
     if [ $1 == monolithic ]; then
         mb2 -t $VENDOR-$DEVICE-armv7hl \
           -s hybris/droid-hal-configs/rpm/droid-hal-configs.spec \
@@ -190,6 +177,19 @@ function build() {
       zypper ref
 }
 
+function builddhd() {
+    mb2 -t $VENDOR-$DEVICE-armv7hl -s rpm/droid-hal-$DEVICE.spec build
+
+    mv -v RPMS/*$DEVICE* $LOCAL_REPO
+    createrepo $LOCAL_REPO
+
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
+      ssu ar local-$DEVICE-hal-$1 file://$LOCAL_REPO
+
+    sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
+      zypper ref
+}
+
 function rpm_snapshot() {
     LOCAL_REPO=$ANDROID_ROOT/$WORK/droid-$1-repo/$DEVICE
     mkdir -p $LOCAL_REPO
@@ -203,7 +203,8 @@ function rpm_snapshot() {
         fi
     fi
 
-    build $1
+    builddhd
+    buildconfigs $1
 
     cd $LOCAL_REPO
     mkdir rpm_contents
@@ -214,6 +215,15 @@ function rpm_snapshot() {
 
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
       ssu rr local-$DEVICE-hal-$1
+}
+
+function buildversion() {
+    cd hybris/droid-hal-version-$DEVICE
+    mb2 -t $VENDOR-$DEVICE-armv7hl \
+      -s rpm/droid-hal-version-$DEVICE.spec \
+      build
+    mv -v RPMS/*.rpm $LOCAL_REPO
+    cd ../../
 }
 
 if [ -z "$1" ]; then
@@ -245,16 +255,18 @@ elif [[ 'snapshot' == $1* ]]; then
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -m sdk-install \
       ssu er local-$DEVICE-hal
 elif [[ 'build-modular' == $1* ]]; then
-    set -x
     if [ ! -d rpm/dhd ]; then
         echo "rpm/dhd/ does not exist, please run migrate first."
         exit 1
     fi
     LOCAL_REPO=$ANDROID_ROOT/droid-local-repo/$DEVICE
     rm -rf $LOCAL_REPO/droid-hal-*
-    build 'modular'
-    set +x
+    rm -rf $LOCAL_REPO/droid-config-*
+
+    builddhd
+    buildconfigs 'modular'
     echo "-------------------------------------------------------------------------------"
+
     read -p 'About to perform "Build HA Middleware Packages" HADK chapter. Press Enter to continue.'
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu domain sales
     sb2 -t $VENDOR-$DEVICE-armv7hl -R -msdk-install ssu dr sdk
@@ -278,15 +290,8 @@ elif [[ 'build-modular' == $1* ]]; then
     buildmw "https://github.com/mer-packages/sensorfw.git" rpm/sensorfw-qt5-hybris.spec || die
     read -p '"Build HA Middleware Packages built". Press Enter to continue.'
     popd
-    set -x
 
-    cd hybris/droid-hal-version-$DEVICE
-    mb2 -t $VENDOR-$DEVICE-armv7hl \
-      -s rpm/droid-hal-version-$DEVICE.spec \
-      build
-    set +x
-    mv -v RPMS/*.rpm $LOCAL_REPO
-    cd ../../
+    buildversion
     echo "----------------------DONE! Now proceed on creating the rootfs------------------"
 fi
 
