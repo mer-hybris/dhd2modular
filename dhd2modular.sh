@@ -100,10 +100,10 @@ function migrate() {
         -e "s|@DEVICE_PRETTY@|$DEVICE_PRETTY|g" \
         -e "s|@VENDOR_PRETTY@|$VENDOR_PRETTY|g" \
         droid-configs-device/droid-config-@DEVICE@.spec.template >rpm/droid-config-$DEVICE.spec
-    read -r -p "Pixel Ration?[1.0, 1.5 or 2.0]" PXR
+    read -r -p "Choose pixel ratio: [1.0, 1.5, or 2.0] " PXR
     case $PXR in
        1.0|1.5|2.0) minfo "Good to go!"; ;;
-       *) merror "Pixel ratio must be 1.0, 1.5 or 2.0"; die; ;;
+       *) merror "Pixel ratio must be 1.0, 1.5, or 2.0"; die; ;;
     esac 
     sed -i -e "s/^%define pixel_ratio .*$/%define pixel_ratio $PXR/" rpm/droid-config-$DEVICE.spec 
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
