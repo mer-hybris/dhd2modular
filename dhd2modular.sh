@@ -39,9 +39,9 @@ if [[ ! -d rpm/helpers && ! -d rpm/dhd ]]; then
     exit 1
 fi
 
-GITODO=sledges ## sed to mer-hybris once upstream
-GITBMOD=dhd2modular ## sed to modular ---"---
-GITCFGBMOD=$GITBMOD ## sed to master  ---"---
+GITODO=mer-hybris
+GITBMOD=modular
+GITCFGBMOD=master
 
 # utilities
 . $ANDROID_ROOT/hybris/dhd2modular/util.sh
