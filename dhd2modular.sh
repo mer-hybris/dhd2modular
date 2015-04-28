@@ -70,7 +70,8 @@ function migrate() {
     if [[ -n $SPEC_EXTRAS ]]; then
         echo "--------------------------------------------------------------------------------"
         echo "These additonal entries were copied from the old rpm-monolithic/droid-hal-$DEVICE.spec"
-        echo "over to the new .spec under rpm/. You should move all Provides to"
+        echo "over to the new .spec under rpm/."
+        echo "All lines starting with 'Provides:' will be automatically moved to"
         echo "\$ANDROID_ROOT/hybris/droid-configs/droid-config-$DEVICE.spec"
         echo
         echo "$SPEC_EXTRAS"
@@ -106,6 +107,13 @@ function migrate() {
        *) merror "Pixel ratio must be 1.0, 1.5, or 2.0"; die; ;;
     esac 
     sed -i -e "s/^%define pixel_ratio .*$/%define pixel_ratio $PXR/" rpm/droid-config-$DEVICE.spec 
+
+    # migrate provides
+    mig="$ANDROID_ROOT/rpm-monolithic/droid-hal-$DEVICE.spec"
+    for provide in $(grep -w "Provides:" $mig | sed "s/Provides://g"); do
+      sed -i "/droid-configs.inc/i Provides: $provide" rpm/droid-config-$DEVICE.spec
+    done
+
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
     mkdir patterns/
     cp -r $ANDROID_ROOT/rpm-monolithic/patterns/$DEVICE/* patterns/
