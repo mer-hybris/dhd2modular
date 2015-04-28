@@ -70,7 +70,7 @@ function migrate() {
     if [[ -n $SPEC_EXTRAS ]]; then
         echo "--------------------------------------------------------------------------------"
         echo "These additonal entries were copied from the old rpm-monolithic/droid-hal-$DEVICE.spec"
-        echo "over to the new .spec under rpm/. You should move all Requires and Provides to"
+        echo "over to the new .spec under rpm/. You should move all Provides to"
         echo "\$ANDROID_ROOT/hybris/droid-configs/droid-config-$DEVICE.spec"
         echo
         echo "$SPEC_EXTRAS"
