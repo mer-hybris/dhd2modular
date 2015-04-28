@@ -1,15 +1,11 @@
-*** VERY WIP! Pls help testing the parts marked with UNTESTED ***
-
 dhd2modular.sh
 
 droid-hal device packaging converter: from monolithic to modular
-Copyright (c) 2015 Jolla Ltd.
-Contact: Simonas Leleiva <simonas.leleiva@jollamobile.com>
 
 We are migrating from monolithic to modular packaging for hardware adaptations.
 
 Monolithic (droid-hal-device) has become too cluttered. Benefits of new layout:
-* Contributions from vendors (such as Jolla) to the new packaging layout
+* Hardware adaptation contributions from vendors (such as Jolla) are already arriving to the new packaging layout
 * One set of repos per device - cleaner code and more re-usability (common repo contains most changes)
 * Changelog per-device
 * OBS builds
@@ -19,24 +15,14 @@ hybris/dhd2modular/
 
 Typical usage:
 # Have your old monolithic repos ready as per HADK v1.0.3.0, device image
-# built from earler and device booting up fine as per your port state. Then:
+# built from earlier and device booting up fine as per your port state. Then:
 MER_SDK $
 hadk
 cd $ANDROID_ROOT
 hybris/dhd2modular/dhd2modular.sh migrate
 hybris/dhd2modular/dhd2modular.sh build
 
-TODO:
-* Write a script rpm/dhd/helpers/amibehind.sh, which:
-  * performs cd rpm; dhd/helpers/add_new_device.sh; git diff - for user to see
-    what changed in patterns
-  * checks if newer submodules available upstream for rpm/, d-h-config, and
-    d-h-version packages
-
-UNTESTED: Build installation .zip and deploy to your device
-
-If device doesn't work as before, try to find what broke (Really Sherlock?!:)
-UNTESTED: You can also perform:
+If device doesn't work as before, try to find what broke (Really Sherlock?!:). Alternatively:
 hybris/dhd2modular/dhd2modular.sh snapshot monolithic
 hybris/dhd2modular/dhd2modular.sh snapshot modular
 diff -ru tmp-dhd2modular/droid-*-repo/$DEVICE
