@@ -176,6 +176,11 @@ function migrate() {
     cd ../..
     rpm/dhd/helpers/amibehind.sh -p
 
+    pushd hybris/droid-configs
+    echo "Cleaning up common patterns. They should come from upstream:"
+    find patterns/ -type f | grep -v $DEVICE | xargs git rm
+    popd
+
     echo "-----------------------------------DONE!----------------------------------------"
     echo "New repositories created under $ANDROID_ROOT, and where you should push them:"
     echo "  rpm/"
