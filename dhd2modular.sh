@@ -99,10 +99,10 @@ function migrate() {
         echo "These additonal entries were copied from the old rpm-monolithic/droid-hal-$DEVICE.spec"
         echo "over to the new .spec under rpm/."
         echo "All lines starting with 'Provides:' will be automatically moved to"
-        echo "\$ANDROID_ROOT/hybris/droid-configs/droid-config-$DEVICE.spec"
+        echo "hybris/droid-configs/droid-config-$DEVICE.spec"
         echo
         echo "$SPEC_EXTRAS"
-        SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | sed -e 's/\\/\\\\/g' | sed -e :a -e '$!N;s/\n/\\n/;ta')
+        SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | grep -v "^Provides:" | sed -e 's/\\/\\\\/g' | sed -e :a -e '$!N;s/\n/\\n/;ta')
         sed -i -e "/^%include rpm\/dhd\/droid-.*$/i# Entries migrated from the old rpm\/droid-hal-$DEVICE.spec\n$SPEC_EXTRAS\n" droid-hal-$DEVICE.spec
     fi
 
@@ -137,8 +137,8 @@ function migrate() {
 
     # migrate provides
     mig="$ANDROID_ROOT/rpm-monolithic/droid-hal-$DEVICE.spec"
-    for provide in $(grep -w "Provides:" $mig | sed "s/Provides://g"); do
-      sed -i "/droid-configs.inc/i Provides: $provide" rpm/droid-config-$DEVICE.spec
+    for provide in $(grep "Provides:" $mig | sed "s/Provides://g"); do
+      sed -i "/%include droid-configs-device/i Provides: $provide" rpm/droid-config-$DEVICE.spec
     done
 
     cp -r $ANDROID_ROOT/rpm-monolithic/device-$VENDOR-$DEVICE-configs sparse
