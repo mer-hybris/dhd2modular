@@ -103,7 +103,7 @@ function migrate() {
         echo
         echo "$SPEC_EXTRAS"
         SPEC_EXTRAS=$(echo "$SPEC_EXTRAS" | sed -e 's/\\/\\\\/g' | sed -e :a -e '$!N;s/\n/\\n/;ta')
-        sed -i -e "/^%include rpm\/dhd\/droid-.*$/i# Entries copied from rpm-monolithic\/droid-hal-$DEVICE.spec\n$SPEC_EXTRAS\n" droid-hal-$DEVICE.spec
+        sed -i -e "/^%include rpm\/dhd\/droid-.*$/i# Entries migrated from the old rpm\/droid-hal-$DEVICE.spec\n$SPEC_EXTRAS\n" droid-hal-$DEVICE.spec
     fi
 
     echo "-----------Migrating: droid-configs---------------------------------"
@@ -177,17 +177,18 @@ function migrate() {
     rpm/dhd/helpers/amibehind.sh -p
 
     echo "-----------------------------------DONE!----------------------------------------"
-    echo "New repositories created under $ANDROID_ROOT:"
+    echo "New repositories created under $ANDROID_ROOT, and where you should push them:"
     echo "  rpm/"
+    echo "   -> github.com/yourname/droid-hal-$DEVICE"
     echo "  hybris/droid-configs"
+    echo "   -> github.com/yourname/droid-config-$DEVICE"
     echo "  hybris/droid-hal-version-$DEVICE"
+    echo "   -> github.com/yourname/droid-hal-version-$DEVICE"
     echo "Your actions next:"
-    if [[ -n $SPEC_EXTRAS ]]; then
-        echo "* Move around and commit all changes across rpm/ and hybris/droid-configs"
-        echo "  as per instructions above"
-    fi
-    echo "* Push all those repos above to your GitHub and ask on #sailfishos-porters for new"
-    echo "  upstream (mer-hybris/) repositories to be created, then PR to them, thanks!"
+    echo "* Inspect and commit all remaining changes in the above repositories"
+    echo "* Push all the repos above to their corresponding GitHub URLs"
+    echo "* Ask on #sailfishos-porters for new upstream (mer-hybris/) repositories to be created"
+    echo "* Create PRs to those repos, many thanks! DIT"
     
     set +e
 }
