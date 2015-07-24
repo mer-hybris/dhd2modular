@@ -40,7 +40,8 @@ if [[ ! -d rpm/helpers && ! -d rpm/dhd ]]; then
 fi
 
 GITODO=mer-hybris
-GITBMOD=modular
+# all submodules need to be on "master" branch! otherwise repo sync --fetch-submodules will fail
+GITBMOD=master
 GITCFGBMOD=master
 
 # utilities
