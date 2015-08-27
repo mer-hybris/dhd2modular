@@ -86,7 +86,7 @@ function buildmw {
     if [ $? == "0" ]; then
         if [ "$GIT_URL" = "$PKG" ]; then
             GIT_URL=https://github.com/mer-hybris/$PKG.git
-            minfo "No git url specified, assuming $GIT_URL"
+            minfo "No git URL specified, assuming $GIT_URL"
         fi
 
         cd "$MER_ROOT/devel/mer-hybris" || die
@@ -94,7 +94,7 @@ function buildmw {
         [ -f "$LOG" ] && rm "$LOG"
 
         if [ ! -d $PKG ] ; then
-            minfo "Source code directory doesn't exist, clonig repository"
+            minfo "Source code directory doesn't exist, cloning repository"
             git clone $GIT_URL >>$LOG 2>&1|| die_with_log "$LOG" "cloning of $GIT_URL failed"
         fi
 
